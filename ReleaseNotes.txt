@@ -1,3 +1,9 @@
+v0.3:
+12/16/2020
+    - Update: Added ColorListCycle mode
+    - Update: Added ColorListRandom mode
+    - Update: Added ColorListRandomUnified mode
+    
 v0.2:
 12/16/2020
     - Update: Moved light discovery to init() in unit.start()

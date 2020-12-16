@@ -7,6 +7,8 @@ step = 0
 lights = {}
 keys = {}
 numLights = 0
+colorStep = 1
+colorLast = 0
 
 math.randomseed(seed)
 
