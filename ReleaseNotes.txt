@@ -1,0 +1,11 @@
+v0.2:
+12/16/2020
+    - Update: Moved light discovery to init() in unit.start()
+    - Update: Added stepDelta export
+    - Update: Sort lights by slot number so order of connection determines cycle effects
+    - Update: Updated README
+    - Update: Added notes about breathmin/max and breath
+
+v0.1:
+12/13/2020
+    - Initial release
