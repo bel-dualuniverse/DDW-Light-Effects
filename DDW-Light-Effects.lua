@@ -1,10 +1,10 @@
 -- DDW-Light-Effects
--- v0.4
+-- v0.5
 
 -- Code for unit.tick("Live")
 -- Exports
-local stepDelta = 0.012 --export: step increment for effects that happen over time (i.e. Breath)
-local mode = 5 --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race
+local stepDelta = 0.012 --export: step increment time based effects (i.e. Breath)
+local mode = 2 --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race
 local brightness = 1 --export: brightness of lights (0-1)
 local red = 255 --export: red
 local green = 255 --export: green
@@ -21,6 +21,7 @@ local colorList = {
 }
 local numColorList = tablelen(colorList)
 
+-- step for time based effects (i.e Breath)
 step = step + stepDelta
 
 -- Build the call table
@@ -39,6 +40,25 @@ local c_tbl = {
 local func = c_tbl[mode]
 if (func) then
     func()
+end
+
+-- Utility methods
+function toColor(red, green, blue)
+    return {r = red, g = green, b = blue}
+end
+
+function adjustedColor(color)
+    return {r = color.r * brightness, g = color.g * brightness, b = color.b * brightness}
+end
+
+function setLightColor(light, color)
+    light.setRGBColor(color.r, color.g, color.b)
+end
+
+function setAllLights(color)
+    for i = 1, numLights do
+        setLightColor(lights[keys[i]], color)
+    end
 end
 
 function colorListNext()
@@ -62,93 +82,85 @@ function colorListRandom()
     return colorList[color]
 end
 
+-- Light Effect methods
 function static()
-    system.print("color: (" .. red .. ", " .. green .. ", " .. blue .. ")")
-    for i = 1, numLights do
-        lights[keys[i]].setRGBColor(red * brightness, green * brightness, blue * brightness)
-    end
+    setAllLights(adjustedColor(toColor(red, green, blue)))
 end
 
 function randomUnified()
-    local rndR = math.random(0, math.floor(255 * brightness))
-    local rndG = math.random(0, math.floor(255 * brightness))
-    local rndB = math.random(0, math.floor(255 * brightness))
-    for i = 1, numLights do
-        lights[keys[i]].setRGBColor(rndR, rndG, rndB)
-    end
+    setAllLights(
+        adjustedColor(
+            toColor(math.random(0, math.floor(255)), math.random(0, math.floor(255)), math.random(0, math.floor(255)))
+        )
+    )
 end
 
 function randomIndividual()
     for i = 1, numLights do
-        local rndR = math.random(0, math.floor(255 * brightness))
-        local rndG = math.random(0, math.floor(255 * brightness))
-        local rndB = math.random(0, math.floor(255 * brightness))
-        lights[keys[i]].setRGBColor(rndR, rndG, rndB)
+        setLightColor(
+            lights[keys[i]],
+            adjustedColor(
+                toColor(
+                    math.random(0, math.floor(255)),
+                    math.random(0, math.floor(255)),
+                    math.random(0, math.floor(255))
+                )
+            )
+        )
     end
 end
 
 function breath()
+    -- use a simple sin() wave transfomred to [0, 1]
     local mag = (math.sin(math.pi * step) + 1) * 0.5
     local mul = breathmin + (breathmax - breathmin) * mag
-    for i = 1, numLights do
-        local r = red * brightness * mul
-        local g = green * brightness * mul
-        local b = blue * brightness * mul
-        lights[keys[i]].setRGBColor(r, g, b)
-    end
+    setAllLights(adjustedColor(toColor(red * mul, green * mul, blue * mul)))
 end
 
 function colorListCycle()
-    local color = colorListNext()
-    local r = color.r * brightness
-    local g = color.g * brightness
-    local b = color.b * brightness
-    for i = 1, numLights do
-        lights[keys[i]].setRGBColor(r, g, b)
-    end
+    setAllLights(adjustedColor(colorListNext()))
 end
 
 function colorListRandomIndividual()
     for i = 1, numLights do
-        local color = colorListRandom()
-        local r = color.r * brightness
-        local g = color.g * brightness
-        local b = color.b * brightness
-        lights[keys[i]].setRGBColor(r, g, b)
+        setLightColor(lights[keys[i]], adjustedColor(colorListRandom()))
     end
 end
 
 function colorListRandomUnified()
-    local color = colorListRandom()
-    local r = color.r * brightness
-    local g = color.g * brightness
-    local b = color.b * brightness
-    for i = 1, numLights do
-        lights[keys[i]].setRGBColor(r, g, b)
-    end
+    setAllLights(adjustedColor(colorListRandom()))
 end
 
 function race()
+    -- raceSize cannot be larger than the number of lights
     if raceSize > numLights then
         raceSize = numLights
     end
+
+    local colorOff = adjustedColor(colorList[1])
+    local colorOn = adjustedColor(colorList[2])
+
+    -- set initial state
     if tablelen(slashTmp) == 0 then
+        -- set initial positions of racing lights
+        -- This will be the state previous to the initial state we want since
+        -- the first operation is to advance the state.
+        counter = numLights
         for i = 1, raceSize do
-            table.insert(slashTmp, i)
-        end
-        for i = 1, numLights do
-            lights[keys[i]].setRGBColor(0, 0, 0)
+            table.insert(slashTmp, counter)
+            counter = counter % numLights + 1
         end
     end
 
+    -- reset all lights
+    setAllLights(colorOff)
+
+    -- advance the race
     for i = raceSize, 1, -1 do
-        off = slashTmp[i]
-        on = slashTmp[i] + 1
-        if on > numLights then
-            on = 1
-        end
-        lights[keys[off]].setRGBColor(0, 0, 0)
-        lights[keys[on]].setRGBColor(red * brightness, green * brightness, blue * brightness)
-        slashTmp[i] = on
+        -- advance state
+        slashTmp[i] = (slashTmp[i]) % numLights + 1
+
+        -- set current state to on
+        setLightColor(lights[keys[slashTmp[i]]], colorOn)
     end
 end

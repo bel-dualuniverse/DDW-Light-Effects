@@ -12,7 +12,7 @@ All lights individually set to a random color
 ### RandomUnified
 All lights set to the same random color
 ### Breath
-All lights fade and brighten like breathing.  The minimum and maximum brightness of the breath is determined by overall brightness and the breathmin/breathmax values.
+All lights fade and brighten like breathing.  The minimum and maximum brightness of the breath is determined by overall brightness and the breathmin/breathmax values. A speed value of around 0.01 is needed to notice this effect.
 ### ColorListCycle
 All lights cycle between the colors specified in the colorList table in the Lua code located under unit.tick().
 ### ColorListRandom
@@ -20,7 +20,7 @@ All lights individually set to a color randomly picked from the colorList table 
 ### ColorListRandomUnified
 All lights set to the same color randomly picked from the colorList table located in the Lua code under unit.tick()
 ### Race
-A set number of lights specified by raceSize will race around the lights in the order of connection.
+A set number of lights specified by raceSize will race around the lights in the order of connection.  The OFF/ON colors are set by colorList[0] and colorList[1].
 
 # Installation
 ## Requirements
@@ -43,9 +43,9 @@ On your Programming Board:
 # Lua Parameters
 * seed: Random number seed
 * speed: Speed of timer in Sec
-* stepDelta: Step increment for effects that happen over time (i.e. Breath). Higher values equal chunkier steps.
+* stepDelta: Step increment for time based effects (i.e. Breath). Higher values equal chunkier steps.
 * mode: Light effects mode: 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race
-* brighness: Brightness of lights (0-1)
+* brighness: Brightness multiplier for lights (0-1)
 * red: Light Red value
 * green: Light Green value
 * blue: Light Blue value

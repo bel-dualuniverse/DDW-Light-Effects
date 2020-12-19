@@ -1,3 +1,11 @@
+v0.5:
+12/19/2020
+    - Update: Improved Race implementation
+    - Update: Added adjustColor()
+    - Update: Added setLightColor()
+    - Update: Added toColor()
+    - Update: Added setAllLights()
+
 v0.4:
 12/18/2020
     - Feature: Added Race mode
