@@ -1,8 +1,12 @@
+v0.4:
+12/18/2020
+    - Feature: Added Race mode
+    
 v0.3:
 12/16/2020
-    - Update: Added ColorListCycle mode
-    - Update: Added ColorListRandom mode
-    - Update: Added ColorListRandomUnified mode
+    - Feature: Added ColorListCycle mode
+    - Feature: Added ColorListRandom mode
+    - Feature: Added ColorListRandomUnified mode
     
 v0.2:
 12/16/2020

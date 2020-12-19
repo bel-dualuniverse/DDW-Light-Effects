@@ -1,19 +1,19 @@
 -- DDW-Light-Effects
--- v0.3
+-- v0.4
 
 -- Code for unit.tick("Live")
 -- Exports
-local stepDelta  = 0.012 --export: step increment for effects that happen over time (i.e. Breath)
-local mode       = 1     --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified
-local brightness = 1     --export: brightness of lights (0-1)
-local red        = 255   --export: red
-local green      = 255   --export: green
-local blue       = 255   --export: blue
-local breathmin  = 0.25  --export: min breath multiplier (0-1). Works in conjunction with brighness.
-local breathmax  = 1     --export: max breath multiplier (0-1). Works in conjunction with brighness.
+local stepDelta = 0.012 --export: step increment for effects that happen over time (i.e. Breath)
+local mode = 5 --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race
+local brightness = 1 --export: brightness of lights (0-1)
+local red = 255 --export: red
+local green = 255 --export: green
+local blue = 255 --export: blue
+local breathmin = 0.25 --export: min breath multiplier (0-1). Works in conjunction with brighness.
+local breathmax = 1 --export: max breath multiplier (0-1). Works in conjunction with brighness.
+local raceSize = 1 --export: number of lights for race mode
 
--- List of colors to cycle through or pick from.
--- Add any number of colors you like.
+-- List of colors to cycle through or pick from
 local colorList = {
     {r = 255, g = 0, b = 0},
     {r = 0, g = 255, b = 0},
@@ -31,7 +31,8 @@ local c_tbl = {
     [4] = breath,
     [5] = colorListCycle,
     [6] = colorListRandomIndividual,
-    [7] = colorListRandomUnified
+    [7] = colorListRandomUnified,
+    [8] = race
 }
 
 -- Call the function based on mode
@@ -41,25 +42,28 @@ if (func) then
 end
 
 function colorListNext()
-    colorStep = colorStep + 1
-    if colorStep > numColorList then colorStep = 1 end
-    return colorList[colorStep]
+    counter = counter + 1
+    if counter > numColorList then
+        counter = 1
+    end
+    return colorList[counter]
 end
 
 function colorListRandom()
     local color = math.random(1, numColorList)
-    
+
     -- Prevent the same color from being selected again this step.
     -- That just looks bad.
     while color == colorLast do
         color = math.random(1, numColorList)
     end
-    
+
     colorLast = color
     return colorList[color]
 end
 
 function static()
+    system.print("color: (" .. red .. ", " .. green .. ", " .. blue .. ")")
     for i = 1, numLights do
         lights[keys[i]].setRGBColor(red * brightness, green * brightness, blue * brightness)
     end
@@ -121,5 +125,30 @@ function colorListRandomUnified()
     local b = color.b * brightness
     for i = 1, numLights do
         lights[keys[i]].setRGBColor(r, g, b)
+    end
+end
+
+function race()
+    if raceSize > numLights then
+        raceSize = numLights
+    end
+    if tablelen(slashTmp) == 0 then
+        for i = 1, raceSize do
+            table.insert(slashTmp, i)
+        end
+        for i = 1, numLights do
+            lights[keys[i]].setRGBColor(0, 0, 0)
+        end
+    end
+
+    for i = raceSize, 1, -1 do
+        off = slashTmp[i]
+        on = slashTmp[i] + 1
+        if on > numLights then
+            on = 1
+        end
+        lights[keys[off]].setRGBColor(0, 0, 0)
+        lights[keys[on]].setRGBColor(red * brightness, green * brightness, blue * brightness)
+        slashTmp[i] = on
     end
 end

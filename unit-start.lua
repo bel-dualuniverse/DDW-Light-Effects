@@ -1,5 +1,5 @@
 -- Code for unit.start()
-local seed  = 17  --export: random number seed
+local seed = 17 --export: random number seed
 local speed = 0.5 --export: speed of timer in Sec
 
 -- globals
@@ -7,15 +7,16 @@ step = 0
 lights = {}
 keys = {}
 numLights = 0
-colorStep = 1
 colorLast = 0
+counter = 0
+slashTmp = {}
 
 math.randomseed(seed)
 
 unit.setTimer("Live", speed)
 
 function tablelen(t)
-    -- # does not work for nonsequential tables
+    -- # symbol does not work for nonsequential tables (i.e. #lights)
     local count = 0
     for _ in pairs(t) do
         count = count + 1
