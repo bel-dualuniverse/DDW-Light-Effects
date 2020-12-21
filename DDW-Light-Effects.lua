@@ -1,10 +1,10 @@
 -- DDW-Light-Effects
--- v0.5
+-- v0.6
 
 -- Code for unit.tick("Live")
 -- Exports
 local stepDelta = 0.012 --export: step increment time based effects (i.e. Breath)
-local mode = 2 --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race
+local mode = 2 --export: Light mode. 1=Static, 2=Random, 3=RandomUnified, 4=Breath (good with speed 0.01), 5=ColorListCycle, 6=ColorListRandom, 7=ColorListRandomUnified, 8=Race, 9=Animate
 local brightness = 1 --export: brightness of lights (0-1)
 local red = 255 --export: red
 local green = 255 --export: green
@@ -33,7 +33,8 @@ local c_tbl = {
     [5] = colorListCycle,
     [6] = colorListRandomIndividual,
     [7] = colorListRandomUnified,
-    [8] = race
+    [8] = race,
+    [9] = animate
 }
 
 -- Call the function based on mode
@@ -80,6 +81,27 @@ function colorListRandom()
 
     colorLast = color
     return colorList[color]
+end
+
+-- simple function to animate light color
+-- lightNum (int): light number for color (1-10). Cannot be greater than the number of connected lights.
+-- step (int): animation step
+function animateColor(lightNum, step)
+    -- This is just a very simple array indexing method.
+    -- You are free to make this method as complex as needed.  
+    -- All it needs to do is return the color for lightNum at step.
+    local sixLightSequence = {
+        {toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255)},
+        {toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0)},
+        {toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0)}
+    }
+
+    if lightNum > numLights then
+        return toColor(0, 0, 0)
+    end
+
+    local index = (step+2) % 3 + 1
+    return sixLightSequence[index][lightNum]
 end
 
 -- Light Effect methods
@@ -164,3 +186,12 @@ function race()
         setLightColor(lights[keys[slashTmp[i]]], colorOn)
     end
 end
+
+function animate()
+    counter = counter + 1
+    for i = 1, numLights do
+        setLightColor(lights[keys[i]], animateColor(i, counter))
+    end
+end
+
+

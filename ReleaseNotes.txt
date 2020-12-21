@@ -1,3 +1,7 @@
+v0.6:
+12/21/2020
+    - Feature: Added Animate mode
+    
 v0.5:
 12/19/2020
     - Update: Improved Race implementation
