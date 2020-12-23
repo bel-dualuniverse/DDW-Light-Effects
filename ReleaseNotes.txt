@@ -1,3 +1,8 @@
+v0.7:
+12/22/2020
+    - Update: Move some static functions to Library.start()
+    - Update: Use colorList index values for animate instead of raw color vectors.
+
 v0.6:
 12/21/2020
     - Feature: Added Animate mode

@@ -39,7 +39,8 @@ Connect the programming board to the lights in the order you would have them cyc
 On your Programming Board:
 1. create a unit.start() filter and paste the code from unit-start.lua
 2. Create a unit.stop() filter and paste the code from unit-stop.lua
-3. Create a unit.tick() filter named "Live" and paste the contents of DDW-Light-Effects.lua
+3. Create a unit.tick() filter named "Live" and paste the code from DDW-Light-Effects.lua
+4. Create a Library.start() filter and paste the code from library-start.lua
 
 
 # Lua Parameters

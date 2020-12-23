@@ -1,5 +1,5 @@
 -- DDW-Light-Effects
--- v0.6
+-- v0.7
 
 -- Code for unit.tick("Live")
 -- Exports
@@ -15,9 +15,9 @@ local raceSize = 1 --export: number of lights for race mode
 
 -- List of colors to cycle through or pick from
 local colorList = {
-    {r = 255, g = 0, b = 0},
-    {r = 0, g = 255, b = 0},
-    {r = 0, g = 0, b = 255}
+    toColor(255, 0, 0),
+    toColor(0, 255, 0),
+    toColor(0, 0, 255)
 }
 local numColorList = tablelen(colorList)
 
@@ -43,19 +43,7 @@ if (func) then
     func()
 end
 
--- Utility methods
-function toColor(red, green, blue)
-    return {r = red, g = green, b = blue}
-end
-
-function adjustedColor(color)
-    return {r = color.r * brightness, g = color.g * brightness, b = color.b * brightness}
-end
-
-function setLightColor(light, color)
-    light.setRGBColor(color.r, color.g, color.b)
-end
-
+-- Unit utility methods. Others can be found in Library
 function setAllLights(color)
     for i = 1, numLights do
         setLightColor(lights[keys[i]], color)
@@ -88,31 +76,36 @@ end
 -- step (int): animation step
 function animateColor(lightNum, step)
     -- This is just a very simple array indexing method.
-    -- You are free to make this method as complex as needed.  
+    -- You are free to make this method as complex as needed.
     -- All it needs to do is return the color for lightNum at step.
-    local sixLightSequence = {
-        {toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255)},
-        {toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0)},
-        {toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0), toColor(0, 255, 0), toColor(0, 0, 255), toColor(255, 0, 0)}
+
+    -- index into colorList
+    -- each row represents a step in the animation
+    -- a single row lists the colorList index values for each connected light
+    local tenLightSequence = {
+        {1, 2, 3, 1, 2, 3, 1, 2, 3, 1},
+        {3, 1, 2, 3, 1, 2, 3, 1, 2, 3},
+        {2, 3, 1, 2, 3, 1, 2, 3, 1, 2}
     }
 
     if lightNum > numLights then
         return toColor(0, 0, 0)
     end
 
-    local index = (step+2) % 3 + 1
-    return sixLightSequence[index][lightNum]
+    local index = (step + 2) % 3 + 1
+    return colorList[tenLightSequence[index][lightNum]]
 end
 
 -- Light Effect methods
 function static()
-    setAllLights(adjustedColor(toColor(red, green, blue)))
+    setAllLights(adjustColor(toColor(red, green, blue), brightness))
 end
 
 function randomUnified()
     setAllLights(
-        adjustedColor(
-            toColor(math.random(0, math.floor(255)), math.random(0, math.floor(255)), math.random(0, math.floor(255)))
+        adjustColor(
+            toColor(math.random(0, math.floor(255)), math.random(0, math.floor(255)), math.random(0, math.floor(255))),
+            brightness
         )
     )
 end
@@ -121,12 +114,13 @@ function randomIndividual()
     for i = 1, numLights do
         setLightColor(
             lights[keys[i]],
-            adjustedColor(
+            adjustColor(
                 toColor(
                     math.random(0, math.floor(255)),
                     math.random(0, math.floor(255)),
                     math.random(0, math.floor(255))
-                )
+                ),
+                brightness
             )
         )
     end
@@ -136,21 +130,21 @@ function breath()
     -- use a simple sin() wave transfomred to [0, 1]
     local mag = (math.sin(math.pi * step) + 1) * 0.5
     local mul = breathmin + (breathmax - breathmin) * mag
-    setAllLights(adjustedColor(toColor(red * mul, green * mul, blue * mul)))
+    setAllLights(adjustColor(toColor(red * mul, green * mul, blue * mul), brightness))
 end
 
 function colorListCycle()
-    setAllLights(adjustedColor(colorListNext()))
+    setAllLights(adjustColor(colorListNext(), brightness))
 end
 
 function colorListRandomIndividual()
     for i = 1, numLights do
-        setLightColor(lights[keys[i]], adjustedColor(colorListRandom()))
+        setLightColor(lights[keys[i]], adjustColor(colorListRandom(brightness)))
     end
 end
 
 function colorListRandomUnified()
-    setAllLights(adjustedColor(colorListRandom()))
+    setAllLights(adjustColor(colorListRandom(), brightness))
 end
 
 function race()
@@ -159,8 +153,8 @@ function race()
         raceSize = numLights
     end
 
-    local colorOff = adjustedColor(colorList[1])
-    local colorOn = adjustedColor(colorList[2])
+    local colorOff = adjustColor(colorList[1], brightness)
+    local colorOn = adjustColor(colorList[2], brightness)
 
     -- set initial state
     if tablelen(slashTmp) == 0 then
@@ -193,5 +187,3 @@ function animate()
         setLightColor(lights[keys[i]], animateColor(i, counter))
     end
 end
-
-
