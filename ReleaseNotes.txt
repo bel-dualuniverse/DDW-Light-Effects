@@ -1,3 +1,14 @@
+v1.0:
+    - NOTE: This is a major release so it is not backwards compatable.
+    - Fixed: Bug in ColorListRandomIndividual
+    - Feature: Added StaticIndividual()
+    - Update: Renamed Static() to StaticUnified()
+    - Update: Moved all effects to colorList input. RGB Lua parameters no longer used.
+    - Update: Removed Red, Green, and Blue Lua parameters
+    - Update: Most utility functions moved to Library.start()
+    - Update: Added getColor library function
+
+
 v0.7:
 12/22/2020
     - Update: Move some static functions to Library.start()
